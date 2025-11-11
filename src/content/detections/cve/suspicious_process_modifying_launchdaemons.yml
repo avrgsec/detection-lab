@@ -11,7 +11,6 @@ references:
 author: Chris S (avrgsec_)
 date: "2025-11-06"
 tags:
-  - attack.privilege-escalation
   - attack.persistence
   - attack.t1543.004
 logsource:
