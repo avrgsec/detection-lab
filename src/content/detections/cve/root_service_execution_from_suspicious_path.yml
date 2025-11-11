@@ -1,0 +1,34 @@
+title: Root Service Execution from Suspicious Path
+id: 9a8b76d6-5e4f-3a2b-1c0d-9e87fa6b5c4d
+status: experimental
+description: |
+  Detects the system launchd process (PID 1) executing a child process from a suspicious, non-standard directory
+  This indicates a LaunchDaemon has been compromised to run a malicious payload
+  This was written for the purpose of detecting the CVE-2025-24085 exploit PoC on ExploitDB but it can be a pretty solid detection outside of that also
+references:
+  - https://www.exploit-db.com/exploits/52316
+  - https://github.com/mbanyamer
+author: Chris S (avrgsec_)
+date: "2025-11-06"
+tags:
+  - attack.privilege-escalation
+  - attack.persistence
+  - attack.t1543.004
+logsource:
+  category: process_creation
+  product: macos
+detection:
+  selection:
+    ParentImage: '/sbin/launchd'
+    User: 'root'
+    Image|startswith:
+      - '/tmp/'
+      - '/private/tmp/'
+      - '/var/tmp/'
+      - '/private/var/tmp/'
+      - '/Users/Shared/'
+      - '/Users/'
+  condition: selection
+falsepositives:
+  - Extremely rare (and insecure) legitimate software that runs helper tools from temp directories.
+level: critical

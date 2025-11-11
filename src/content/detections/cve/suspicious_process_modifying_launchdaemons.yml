@@ -1,0 +1,33 @@
+title: Suspicious Process Modifying LaunchDaemons
+id: 1d2e3f4a-5b6c-7d8e-9f0a-1b2c3d4e5f6a
+status: experimental
+description: |
+  Detects non-standard processes creating or modifying files in the /Library/LaunchDaemons/ directory.
+  This is a primary indicator of privilege escalation attempts via service hijacking.
+  This was written for the purpose of detecting the CVE-2025-24085 exploit PoC on ExploitDB but it can be a pretty solid detection outside of that also
+references:
+  - https://www.exploit-db.com/exploits/52316
+  - https://github.com/mbanyamer
+author: Chris S (avrgsec_)
+date: "2025-11-06"
+tags:
+  - attack.privilege-escalation
+  - attack.persistence
+  - attack.t1543.004
+logsource:
+  category: file_event
+  product: macos
+detection:
+  selection:
+    TargetFilename|startswith: '/Library/LaunchDaemons/'
+    TargetFilename|endswith: '.plist'
+  filter_legit_installers:
+    Image|endswith:
+      - '/usr/sbin/installer'
+      - '/usr/libexec/mdmclient'
+      - '/usr/sbin/softwareupdated'
+  condition: selection and not filter_legit_installers
+falsepositives:
+  - Poorly designed third-party application installers that do not use standard macOS installer frameworks.
+  - It should also be noted that tools like Jamf can cause false positives so consider adding that to filter_legit_installers if applicable.
+level: high
