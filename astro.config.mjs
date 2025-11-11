@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   integrations: [tailwind(), mdx()],
-  site: 'https://avrgsec.github.io',
+  site: 'https://avrgsec.me',
   base: '/',  // Changed this
   markdown: {
     shikiConfig: {
