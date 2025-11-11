@@ -1,0 +1,49 @@
+title: Hidden Flag Set On File/Directory Via Chflags
+id: 3b2c1059-ae5f-40b6-b5d4-6106d3ac20fe
+status: test
+description: |
+  Detects the execution of the "chflags" utility with the "hidden" flag to hide files or directories on macOS.
+  When a file or directory has the hidden flag set, it becomes invisible to default file listing commands and graphical file browsers.
+  This technique has been observed in APT32 (OceanLotus) campaigns and other malware like WireLurker.
+references:
+  - https://www.sentinelone.com/labs/apt32-multi-stage-macos-trojan-innovates-on-crimeware-scripting-technique/
+  - https://www.welivesecurity.com/2019/04/09/oceanlotus-macos-malware-update/
+  - https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/reports/Unit_42/unit42-wirelurker.pdf
+  - https://ss64.com/mac/chflags.html
+author: Omar Khaled (@beacon_exe) Chris S (avrgsec)
+date: "2025-11-01"
+modified: 2025-11-01 - Chris S (@avrgsec_)
+tags:
+  - attack.defense-evasion
+  - attack.t1564.001
+logsource:
+  product: macos
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: "/chflags"
+  selection_flag:
+    CommandLine|contains:
+      - " hidden "
+      - " uhidden "
+  selection_suspicious_paths:
+    CommandLine|contains:
+      - "/tmp/"
+      - "/Users/"
+      - "/var/tmp/"
+      - "/private/tmp/"
+      - ".app/"
+      - ".dmg"
+  filter_optional_macos_system:
+    CommandLine|contains:
+      - "/.Spotlight-"
+      - "/.Trashes"
+      - "/.fseventsd"
+      - "/.DocumentRevisions"
+  condition: all of selection_* and not 1 of filter_optional_*
+falsepositives:
+  - Legitimate system administration tasks
+  - Backup software operations
+  - Application installers hiding configuration files
+  - Time Machine and Spotlight operations
+level: medium

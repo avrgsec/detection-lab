@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DetectionCard from '../components/DetectionCard.astro';
+import BlogCard from '../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+// Get all detections
+const allDetections = await getCollection('detections');
+const recentDetections = allDetections
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 4);
+
+// Get all blog posts
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+// Extract MITRE tags
+function extractMitreTags(tags: string[]): string[] {
+  return tags
+    .filter(tag => tag.startsWith('attack.'))
+    .map(tag => tag.replace('attack.', '').toUpperCase())
+    .filter(tag => tag.startsWith('T'));
+}
+
+// Calculate stats
+const totalDetections = allDetections.length;
+const totalPosts = allPosts.length;
+---
+
+<BaseLayout title="Home">
+  <!-- Hero Section -->
+  <section class="text-center py-20">
+    <h1 class="text-6xl font-extralight mb-4 tracking-tight">
+      avrgsec
+    </h1>
+    <p class="text-xl text-text-secondary font-light mb-8">
+      ¯\_(ツ)_/¯
+    </p>
+    
+    <div class="flex gap-4 justify-center mb-12">
+      <a 
+        href="/detections" 
+        class="px-6 py-3 bg-bg-secondary border border-border rounded-lg hover:border-accent transition-colors"
+      >
+        View Detections
+      </a>
+      <a 
+        href="/blog" 
+        class="px-6 py-3 bg-bg-secondary border border-border rounded-lg hover:border-accent transition-colors"
+      >
+        Read Blog
+      </a>
+    </div>
+    
+    <div class="flex gap-8 justify-center text-text-secondary text-sm">
+      <span>{totalDetections} Detections</span>
+      <span class="text-border">|</span>
+      <span>{totalPosts} Blog Posts</span>
+    </div>
+  </section>
+
+<!-- Recent Detections -->
+  {recentDetections.length > 0 && (
+    <section class="mb-20">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-light">Recent Detections</h2>
+        <a href="/detections" class="text-text-secondary hover:text-text-primary transition-colors text-sm">
+          View all →
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {recentDetections.map((detection) => {
+          // Safely parse detection ID
+          const idParts = detection.id.split('/');
+          const os = idParts.length > 1 ? idParts[0] : 'unknown';
+          const filename = idParts.length > 1 ? idParts[1] : idParts[0];
+          const slug = filename.replace(/\.(yml|yaml)$/, '');
+          const mitreTags = extractMitreTags(detection.data.tags || []);
+          
+          return (
+            <DetectionCard
+              title={detection.data.title}
+              description={detection.data.description}
+              os={os}
+              level={detection.data.level}
+              mitreTags={mitreTags}
+              slug={slug}
+            />
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <!-- Recent Blog Posts -->
+  {recentPosts.length > 0 && (
+    <section>
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-light">Latest Posts</h2>
+        <a href="/blog" class="text-text-secondary hover:text-text-primary transition-colors text-sm">
+          View all →
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {recentPosts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            slug={post.slug}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</BaseLayout>

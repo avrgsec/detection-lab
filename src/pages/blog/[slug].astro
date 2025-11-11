@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}).format(post.data.date);
+
+// Estimate reading time (rough calculation)
+const words = post.body.split(/\s+/).length;
+const readingTime = Math.ceil(words / 200);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-text-secondary mb-8">
+    <a href="/" class="hover:text-text-primary">Home</a>
+    <span class="mx-2">/</span>
+    <a href="/blog" class="hover:text-text-primary">Blog</a>
+    <span class="mx-2">/</span>
+    <span class="text-text-primary">{post.data.title}</span>
+  </nav>
+
+  <!-- Article Header -->
+  <article class="max-w-3xl mx-auto">
+    <header class="mb-12">
+      <h1 class="text-4xl font-light mb-4">{post.data.title}</h1>
+      
+      <div class="flex items-center gap-4 text-sm text-text-secondary mb-6">
+        <time datetime={post.data.date.toISOString()}>
+          {formattedDate}
+        </time>
+        <span>•</span>
+        <span>{readingTime} min read</span>
+      </div>
+      
+      {post.data.tags && post.data.tags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {post.data.tags.map(tag => (
+            <span class="px-3 py-1 text-sm bg-bg-secondary border border-border rounded">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- Article Content -->
+    <div class="prose prose-invert prose-lg max-w-none">
+      <Content />
+    </div>
+  </article>
+
+  <!-- Back Link -->
+  <div class="pt-12 mt-12 border-t border-border max-w-3xl mx-auto">
+    <a href="/blog" class="text-text-secondary hover:text-text-primary transition-colors">
+      ← Back to all posts
+    </a>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* Prose styling for blog content */
+  .prose {
+    color: #e0e0e0;
+  }
+  
+  .prose h2 {
+    font-size: 1.875rem;
+    font-weight: 300;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+  
+  .prose h3 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #ffffff;
+  }
+  
+  .prose p {
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+    color: #cccccc;
+  }
+  
+  .prose a {
+    color: #ffffff;
+    border-bottom: 1px solid #666666;
+    text-decoration: none;
+  }
+  
+  .prose a:hover {
+    border-bottom-color: #ffffff;
+  }
+  
+  .prose code {
+    background: #1a1a1a;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    color: #00ff41;
+  }
+  
+  .prose pre {
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+  
+  .prose pre code {
+    background: transparent;
+    padding: 0;
+    color: #e0e0e0;
+  }
+  
+  .prose ul, .prose ol {
+    margin: 1.25rem 0;
+    padding-left: 1.5rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+    color: #cccccc;
+  }
+  
+  .prose blockquote {
+    border-left: 3px solid #666666;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    color: #999999;
+    font-style: italic;
+  }
+  
+  .prose img {
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+  }
+  
+  .prose hr {
+    border-top: 1px solid #2a2a2a;
+    margin: 2rem 0;
+  }
+</style>

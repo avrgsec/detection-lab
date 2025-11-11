@@ -1,0 +1,60 @@
+title: Keychain Database Staging For Exfiltration - MacOS
+id: 33dd9aef-d0a2-4217-89fe-11f4ab418735
+status: experimental
+description: |
+  Detects potential staging of macOS Keychain database files for exfiltration to temporary or shared directories.
+  Adversaries often copy keychain files (login.keychain-db, login.keychain, System.keychain) to staging locations before exfiltration.
+  This technique has been observed in campaigns such as Odyssey stealer, BeaverTail, Cuckoo Stealer, and Calisto malware.
+references:
+  - https://attack.mitre.org/techniques/T1555/001/
+  - https://www.cloudsek.com/blog/threat-actors-impersonate-microsoft-teams-to-deliver-odyssey-macos-stealer-via-clickfix
+  - https://book.hacktricks.wiki/en/macos-hardening/macos-red-teaming/macos-keychain.html
+  - https://www.kandji.io/blog/malware-cuckoo-infostealer-spyware
+author: Chris S (@avrgsec_)
+date: "2025-11-02"
+tags:
+  - attack.credential-access
+  - attack.t1555.001
+  - attack.collection
+  - attack.t1074.001
+logsource:
+  category: process_creation
+  product: macos
+detection:
+  selection_img:
+    Image|endswith:
+      - "/cp"
+      - "/rsync"
+      - "/mv"
+      - "/ditto"
+      - "/tar"
+      - "/zip"
+  selection_keychain_files:
+    CommandLine|contains:
+      - "login.keychain-db"
+      - "login.keychain"
+      - "System.keychain"
+      - "/Library/Keychains/"
+      - "~/Library/Keychains/"
+  selection_staging_locations:
+    CommandLine|contains:
+      - "/tmp/"
+      - "/var/folders/"
+      - "/private/tmp/"
+      - "/Users/Shared/"
+      - "/Downloads/"
+      - "/Desktop/"
+      - "/Documents/"
+  filter_optional_backup:
+    ParentImage|endswith:
+      - "/TimeMachine"
+      - "/backupd"
+    CommandLine|contains: "/Backups.backupdb/"
+  filter_optional_system:
+    User: "_mbsetupuser"
+  condition: all of selection_* and not 1 of filter_optional_*
+falsepositives:
+  - Legitimate backup operations to external drives (filtered)
+  - System migration or setup processes (filtered)
+  - Manual administrative keychain backups (rare)
+level: high

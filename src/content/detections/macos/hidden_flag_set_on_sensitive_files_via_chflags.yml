@@ -1,0 +1,65 @@
+title: Hidden Flag Set On Sensitive Files Via Chflags
+id: 7f3a9c2b-8e5d-4a1f-9c3e-2d4b6f8a1c5e
+related:
+  - id: 3b2c1059-ae5f-40b6-b5d4-6106d3ac20fe
+    type: similar
+status: test
+description: |
+  Detects the execution of the "chflags" utility with the "hidden" flag targeting sensitive files or directories on macOS.
+  This focuses on high-risk scenarios where attackers hide scripts, sensitive user data, or credential-related files.
+  When combined with suspicious file types or locations, this behavior is highly indicative of malicious activity.
+references:
+  - https://www.sentinelone.com/labs/apt32-multi-stage-macos-trojan-innovates-on-crimeware-scripting-technique/
+  - https://www.welivesecurity.com/2019/04/09/oceanlotus-macos-malware-update/
+  - https://www.paloaltonetworks.com/content/dam/pan/en_US/assets/pdf/reports/Unit_42/unit42-wirelurker.pdf
+  - https://ss64.com/mac/chflags.html
+author: Chris S (@avrgsec_)
+date: "2025-11-01"
+tags:
+  - attack.defense-evasion
+  - attack.t1564.001
+  - attack.credential-access
+  - attack.t1552.001
+logsource:
+  product: macos
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: "/chflags"
+  selection_flag:
+    CommandLine|contains:
+      - " hidden "
+      - " uhidden "
+  selection_sensitive:
+    CommandLine|contains:
+      - "/Users/*/Documents/"
+      - "/Users/*/Downloads/"
+      - "/Users/*/Desktop/"
+      - ".sh"
+      - ".py"
+      - ".pl"
+      - ".bash"
+      - ".zsh"
+      - "password"
+      - "credential"
+      - "secret"
+      - "token"
+      - ".pem"
+      - ".key"
+      - "id_rsa"
+      - ".aws"
+      - ".ssh"
+  filter_optional_macos_system:
+    CommandLine|contains:
+      - "/.Spotlight-"
+      - "/.Trashes"
+      - "/.Trash"
+      - "/.fseventsd"
+      - "/.DocumentRevisions"
+      - "/.TemporaryItems"
+      - "/.DS_Store"
+  condition: all of selection_* and not 1 of filter_optional_*
+falsepositives:
+  - Rare legitimate administrative operations on sensitive files
+  - Security software hiding sensitive configuration files
+level: high

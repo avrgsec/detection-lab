@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const sortedPosts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Get all unique tags
+const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags || []))].sort();
+---
+
+<BaseLayout title="Blog" description="Technical writeups on detection engineering, testing methodology, and security research">
+  <div class="mb-12">
+    <h1 class="text-4xl font-light mb-4">Blog</h1>
+    <p class="text-text-secondary">
+      {sortedPosts.length} posts on detection engineering and security research
+    </p>
+  </div>
+
+  {allTags.length > 0 && (
+    <div class="mb-12">
+      <h2 class="text-sm text-text-secondary mb-4">Filter by tag:</h2>
+      <div class="flex flex-wrap gap-2">
+        {allTags.map(tag => (
+          <button class="px-3 py-1 text-sm bg-bg-secondary border border-border rounded hover:border-accent transition-colors">
+            #{tag}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {sortedPosts.length > 0 ? (
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sortedPosts.map((post) => (
+        <BlogCard
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+          tags={post.data.tags}
+          slug={post.slug}
+        />
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-20">
+      <p class="text-text-secondary text-lg">No blog posts yet. Check back soon!</p>
+    </div>
+  )}
+</BaseLayout>

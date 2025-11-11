@@ -1,0 +1,43 @@
+title: Clipboard Data Collection Via OSAScript
+id: bac164c8-b8f4-4b74-b772-686f8f72a605
+related:
+  - id: b2ce8c25-08b5-472b-bed6-be5ea8eace55
+    type: similar
+status: test
+description: |
+  Detects possible collection of data from the clipboard via execution of the "osascript" binary on macOS.
+  Attackers can use AppleScript to access clipboard contents for data exfiltration or reconnaissance purposes.
+  The "clipboard info" and "the clipboard" commands return clipboard contents in AppleScript.
+references:
+  - https://www.sentinelone.com/blog/how-offensive-actors-use-applescript-for-attacking-macos/
+  - https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/
+author: Chris S (@avrgsec_)
+date: "2025-11-01"
+tags:
+  - attack.collection
+  - attack.t1115
+  - attack.execution
+  - attack.t1059.002
+logsource:
+  product: macos
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: "/osascript"
+  selection_clipboard:
+    CommandLine|contains:
+      - "the clipboard"
+      - "clipboard info"
+      - "set theClipboard"
+      - "get the clipboard"
+  filter_optional_legitimate:
+    ParentImage|endswith:
+      - "/Alfred.app"
+      - "/Raycast.app"
+      - "/Keyboard Maestro.app"
+  condition: all of selection_* and not 1 of filter_optional_*
+falsepositives:
+  - Legitimate clipboard management utilities and productivity apps
+  - Developer testing and automation scripts
+  - System administration tasks
+level: medium

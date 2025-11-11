@@ -1,0 +1,45 @@
+title: Suspicious Clipboard Data Exfiltration Via OSAScript
+id: a7f9d3e1-4c8b-4a2f-9e5d-1b3c7f8a9d2e
+related:
+  - id: bac164c8-b8f4-4b74-b772-686f8f72a605
+    type: similar
+status: test
+description: |
+  Detects suspicious clipboard data collection combined with network activity or file operations via osascript.
+  This pattern indicates potential data exfiltration where clipboard contents are being sent externally or saved to disk.
+references:
+  - https://www.sentinelone.com/blog/how-offensive-actors-use-applescript-for-attacking-macos/
+author: Chris S (@avrgsec_)
+date: "2025-11-01"
+tags:
+  - attack.collection
+  - attack.t1115
+  - attack.exfiltration
+  - attack.t1041
+  - attack.execution
+  - attack.t1059.002
+logsource:
+  product: macos
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith: "/osascript"
+  selection_clipboard:
+    CommandLine|contains:
+      - "the clipboard"
+      - "clipboard info"
+  selection_exfil:
+    CommandLine|contains:
+      - "curl"
+      - "wget"
+      - "do shell script"
+      - "write to file"
+      - "open location"
+      - "URL"
+      - "http"
+      - "/tmp/"
+      - "/var/tmp/"
+  condition: all of selection_*
+falsepositives:
+  - Rare legitimate clipboard sharing or synchronization tools
+level: high

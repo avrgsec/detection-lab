@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DetectionCard from '../../components/DetectionCard.astro';
+import { getCollection } from 'astro:content';
+
+const allDetections = await getCollection('detections');
+
+// Group detections by OS
+const detectionsByOS = allDetections.reduce((acc, detection) => {
+  const os = detection.id.split('/')[0];
+  if (!acc[os]) acc[os] = [];
+  acc[os].push(detection);
+  return acc;
+}, {} as Record<string, typeof allDetections>);
+
+// Sort each OS group by date
+Object.keys(detectionsByOS).forEach(os => {
+  detectionsByOS[os].sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+});
+
+const osCategories = [
+  { key: 'windows', name: 'Windows', icon: '🪟' },
+  { key: 'linux', name: 'Linux', icon: '🐧' },
+  { key: 'macos', name: 'macOS', icon: '🍎' },
+  { key: 'cloud', name: 'Cloud', icon: '☁️' },
+  { key: 'network', name: 'Network', icon: '🌐' },
+  { key: 'cross-platform', name: 'Cross-Platform', icon: '🔀' },
+];
+
+function extractMitreTags(tags: string[]): string[] {
+  return tags
+    .filter(tag => tag.startsWith('attack.'))
+    .map(tag => tag.replace('attack.', '').toUpperCase())
+    .filter(tag => tag.startsWith('T'));
+}
+---
+
+<BaseLayout title="Detections" description="Browse Sigma detection rules organized by operating system">
+  <div class="mb-12">
+    <h1 class="text-4xl font-light mb-4">Detections</h1>
+    <p class="text-text-secondary">
+      {allDetections.length} Sigma detection rules covering multiple platforms
+    </p>
+  </div>
+
+  <!-- OS Categories -->
+  {osCategories.map(({ key, name, icon }) => {
+    const detections = detectionsByOS[key] || [];
+    
+    if (detections.length === 0) return null;
+    
+    return (
+      <section class="mb-16">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-3xl">{icon}</span>
+          <h2 class="text-2xl font-light">{name}</h2>
+          <span class="text-text-secondary text-sm">({detections.length})</span>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {detections.map((detection) => {
+            const slug = detection.id.split('/')[1].replace('.yml', '');
+            const mitreTags = extractMitreTags(detection.data.tags);
+            
+            return (
+              <DetectionCard
+                title={detection.data.title}
+                description={detection.data.description}
+                os={key}
+                level={detection.data.level}
+                mitreTags={mitreTags}
+                slug={slug}
+              />
+            );
+          })}
+        </div>
+      </section>
+    );
+  })}
+
+  {allDetections.length === 0 && (
+    <div class="text-center py-20">
+      <p class="text-text-secondary text-lg">No detections yet. Check back soon!</p>
+    </div>
+  )}
+</BaseLayout>

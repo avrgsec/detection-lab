@@ -1,0 +1,59 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  os: string;
+  level: string;
+  mitreTags: string[];
+  slug: string;
+}
+
+const { title, description, os, level, mitreTags, slug } = Astro.props;
+
+const osIcons = {
+  windows: '🪟',
+  linux: '🐧',
+  macos: '🍎',
+  cloud: '☁️',
+  network: '🌐',
+  'cross-platform': '🔀'
+};
+
+const levelColors = {
+  critical: 'text-red-500',
+  high: 'text-orange-500',
+  medium: 'text-yellow-500',
+  low: 'text-green-500'
+};
+
+const osIcon = osIcons[os as keyof typeof osIcons] || '📄';
+const levelColor = levelColors[level.toLowerCase() as keyof typeof levelColors] || 'text-text-secondary';
+---
+
+<a href={`/detections/${os}/${slug}`} class="block group">
+  <div class="bg-bg-secondary border border-border rounded-lg p-6 hover:border-accent transition-all duration-300 h-full">
+    <div class="flex items-center gap-2 text-text-secondary text-sm mb-3">
+      <span>{osIcon}</span>
+      <span class="capitalize">{os}</span>
+    </div>
+    
+    <h3 class="text-xl font-light mb-2 group-hover:text-accent transition-colors">
+      {title}
+    </h3>
+    
+    <p class="text-text-secondary text-sm mb-4 line-clamp-2">
+      {description}
+    </p>
+    
+    <div class="flex flex-wrap gap-2 items-center text-xs">
+      {mitreTags.slice(0, 3).map(tag => (
+        <span class="px-2 py-1 bg-bg-primary border border-border rounded">
+          {tag}
+        </span>
+      ))}
+      <span class={`px-2 py-1 ${levelColor}`}>
+        {level.toUpperCase()}
+      </span>
+    </div>
+  </div>
+</a>

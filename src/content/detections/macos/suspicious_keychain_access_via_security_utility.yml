@@ -1,0 +1,47 @@
+title: Suspicious Keychain Access Via Security Utility - MacOS
+id: 8f2b4d1c-9e3a-4f7b-a5c6-1d8e9f0a2b3c
+related:
+  - id: 33dd9aef-d0a2-4217-89fe-11f4ab418735
+    type: similar
+status: experimental
+description: |
+  Detects suspicious use of the "security" command-line utility to dump, export, or access keychain credentials.
+  Adversaries use commands like "security dump-keychain -d" to extract plaintext passwords from the macOS Keychain.
+  This technique is used by Empire framework, Odyssey stealer, and other credential theft tools.
+references:
+  - https://attack.mitre.org/techniques/T1555/001/
+  - https://www.cloudsek.com/blog/threat-actors-impersonate-microsoft-teams-to-deliver-odyssey-macos-stealer-via-clickfix
+  - https://book.hacktricks.wiki/en/macos-hardening/macos-red-teaming/macos-keychain.html
+author: Chris S (@avrgsec_)
+date: "2025-11-02"
+tags:
+  - attack.credential-access
+  - attack.t1555.001
+logsource:
+  category: process_creation
+  product: macos
+detection:
+  selection_img:
+    Image|endswith: "/security"
+  selection_dump:
+    CommandLine|contains:
+      - "dump-keychain"
+      - "export"
+      - "find-generic-password"
+      - "find-internet-password"
+  selection_decrypt_flag:
+    CommandLine|contains:
+      - " -d"
+      - "--decrypt"
+      - " -g"
+  filter_optional_admin:
+    ParentImage|endswith:
+      - "/Keychain Access.app"
+      - "/System Preferences.app"
+      - "/System Settings.app"
+  condition: selection_img and selection_dump and selection_decrypt_flag and not 1 of filter_optional_*
+falsepositives:
+  - Legitimate administrative keychain management via Keychain Access app (filtered)
+  - Security auditing tools with proper authorization
+  - Password manager applications
+level: high
