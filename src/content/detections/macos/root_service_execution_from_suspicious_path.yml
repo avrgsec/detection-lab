@@ -4,7 +4,6 @@ status: experimental
 description: |
   Detects the system launchd process (PID 1) executing a child process from a suspicious, non-standard directory
   This indicates a LaunchDaemon has been compromised to run a malicious payload
-  This was written for the purpose of detecting the CVE-2025-24085 exploit PoC on ExploitDB but it can be a pretty solid detection outside of that also
 references:
   - https://www.exploit-db.com/exploits/52316
   - https://github.com/mbanyamer

@@ -4,7 +4,6 @@ status: experimental
 description: |
   Detects non-standard processes creating or modifying files in the /Library/LaunchDaemons/ directory.
   This is a primary indicator of privilege escalation attempts via service hijacking.
-  This was written for the purpose of detecting the CVE-2025-24085 exploit PoC on ExploitDB but it can be a pretty solid detection outside of that also
 references:
   - https://www.exploit-db.com/exploits/52316
   - https://github.com/mbanyamer
