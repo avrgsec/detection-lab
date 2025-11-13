@@ -22,7 +22,7 @@ It wasn’t until I started playing around with these concepts myself by buildin
 
 That experience reshaped my understanding of what it means to defend effectively. It taught me that true defensive capability isn’t just about memorising patterns — it’s about understanding intent, context, and the mechanics of how attacks actually unfold.
 
-There's a famous quote: "The best defence is a good offence". That slow burn - from seeing logs to understanding live attacker behaviour is what I want to unpack in this post. Why does offensive knowledge accelerate defensive skill, and how can defenders safely build that perspective for themselves.
+There's a famous quote: "The best defence is a good offence". That slow burn - from seeing logs to understanding live attacker behaviour is what I want to unpack in this series. Why does offensive knowledge accelerate defensive skill, and how can defenders safely build that perspective for themselves.
 
 -----
 ### Why Offensive Security isn't an Entry-Level Path
@@ -63,6 +63,6 @@ At some point, things will start to click. You’ll begin recognising attack sta
 
 You don’t have to start on the red side to think like an attacker — you just need to start paying attention to the why behind the blue side.
 
-In the next post, we'll dive into some basic technical details behind what an attack looks like from both perspectives, to give you an understanding as to what to look for, and also, how to emulate it yourself in your own environment!
+In the next post, we'll dive into some basic technical details behind what an attack looks like from both perspectives, to give you an understanding as to what to look for, and also, how to emulate it yourself in your own environment.
 
 
