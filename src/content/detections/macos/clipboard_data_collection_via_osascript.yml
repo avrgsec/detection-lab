@@ -1,9 +1,6 @@
 title: Clipboard Data Collection Via OSAScript
 id: bac164c8-b8f4-4b74-b772-686f8f72a605
-related:
-  - id: b2ce8c25-08b5-472b-bed6-be5ea8eace55
-    type: similar
-status: test
+status: experimental
 description: |
   Detects possible collection of data from the clipboard via execution of the "osascript" binary on macOS.
   Attackers can use AppleScript to access clipboard contents for data exfiltration or reconnaissance purposes.

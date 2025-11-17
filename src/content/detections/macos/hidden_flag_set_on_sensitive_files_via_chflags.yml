@@ -1,9 +1,6 @@
 title: Hidden Flag Set On Sensitive Files Via Chflags
 id: 7f3a9c2b-8e5d-4a1f-9c3e-2d4b6f8a1c5e
-related:
-  - id: 3b2c1059-ae5f-40b6-b5d4-6106d3ac20fe
-    type: similar
-status: test
+status: experimental
 description: |
   Detects the execution of the "chflags" utility with the "hidden" flag targeting sensitive files or directories on macOS.
   This focuses on high-risk scenarios where attackers hide scripts, sensitive user data, or credential-related files.

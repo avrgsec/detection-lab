@@ -1,8 +1,5 @@
 title: Suspicious Keychain Access Via Security Utility - MacOS
 id: 8f2b4d1c-9e3a-4f7b-a5c6-1d8e9f0a2b3c
-related:
-  - id: 33dd9aef-d0a2-4217-89fe-11f4ab418735
-    type: similar
 status: experimental
 description: |
   Detects suspicious use of the "security" command-line utility to dump, export, or access keychain credentials.

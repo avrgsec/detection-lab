@@ -1,0 +1,54 @@
+title: Suspicious Process Modifying .zshrc Configuration
+id: 7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+status: experimental
+description: |
+  Detects modification of the .zshrc shell configuration file by abnormal processes.
+  Attackers commonly modify .zshrc to establish persistence, execute malicious code on
+  terminal launch, or exfiltrate sensitive data. This detection focuses on modifications
+  made by non-standard editors or processes executing from temporary directories.
+references:
+  - https://attack.mitre.org/techniques/T1546/004/
+  - https://www.sentinelone.com/labs/bluenoroff-hidden-risk-threat-actor-targets-macs-with-fake-crypto-news-and-novel-persistence/
+author: Chris S (avrgsec_)
+date: "2025-11-13"
+tags:
+  - attack.t1546.004
+  - attack.persistence
+  - attack.t1059.004
+  - attack.execution
+logsource:
+  category: file_event
+  product: macos
+detection:
+  selection:
+    TargetFilename|endswith: '/.zshrc'
+  filter_legit_editors:
+    Image|endswith:
+      - '/vim'
+      - '/vi'
+      - '/nano'
+      - '/emacs'
+      - '/code'
+      - '/TextEdit'
+      - '/Visual Studio Code'
+  filter_package_managers:
+    Image|contains:
+      - '/brew'
+      - '/oh-my-zsh'
+  suspicious_paths:
+    Image|startswith:
+      - '/tmp/'
+      - '/private/tmp/'
+      - '/var/tmp/'
+      - '/private/var/tmp/'
+      - '/dev/shm/'
+      - '/Users/*/Downloads/' # Use with caution - may generate FPs
+      - '/Users/*/Desktop/' # Use with caution - may generate FPs
+  condition: selection and not filter_legit_editors and not filter_package_managers or (selection and suspicious_paths)
+falsepositives:
+  - Legitimate shell customisation by users
+  - Package manager installations (Homebrew, oh-my-zsh)
+  - Automated configuration management tools
+  - Environment setup scripts
+  - Legitimate binaries/scripts in /Downloads/ (Use this with caution that it may generate multiple FP's)
+level: high

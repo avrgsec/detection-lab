@@ -1,9 +1,6 @@
 title: Suspicious Clipboard Data Exfiltration Via OSAScript
 id: a7f9d3e1-4c8b-4a2f-9e5d-1b3c7f8a9d2e
-related:
-  - id: bac164c8-b8f4-4b74-b772-686f8f72a605
-    type: similar
-status: test
+status: experimental
 description: |
   Detects suspicious clipboard data collection combined with network activity or file operations via osascript.
   This pattern indicates potential data exfiltration where clipboard contents are being sent externally or saved to disk.
