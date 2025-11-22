@@ -1,5 +1,5 @@
 ---
-title: "Understanding and detecting macOS Persistence via Shell Configuration Files - Deep Dive"
+title: "Understanding and detecting macOS Persistence via Shell Configuration Files"
 description: "The first in a series of blog posts discussing why it's important to think like an attacker."
 date: 2025-11-22
 tags: ["macos", "persistence", "detection-engineering", "shell", "zshrc"]
