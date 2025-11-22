@@ -170,7 +170,7 @@ falsepositives:
   - homebreww installation or updates
   - oh-my-zsh updates or installations
   - Legitimate shell customisation that checks for updates
-  - Development environment initialization (nvm, rbenv, pyenv)
+  - Development environment initialisation (nvm, rbenv, pyenv)
 level: high
 ```
 
@@ -258,7 +258,7 @@ detection:
       - 'update_terminal'
   condition: selection_parent and selection_credential_access and selection_tools and not filter_legit
 falsepositives:
-  - Legitimate backup scripts run at shell initialization
+  - Legitimate backup scripts run at shell initialisation
   - SSH key management tools
   - Development environment setup that configures credentials
   - Password managers accessing keychain
