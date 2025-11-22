@@ -1,0 +1,61 @@
+title: Suspicious Network Connection from Shell Launch
+id: 2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e
+status: experimental
+description: |
+  Detects network connections initiated immediately after shell launch.
+  When a terminal opens, the shell RC file (.zshrc) is executed. Attackers may abuse this to beacon to command and control servers, exfiltrate data and credentials (keychain files for example), or download 
+  additional payloads. This detection identifies suspicious network tools, launched directly from the shell.
+references:
+  - https://attack.mitre.org/techniques/T1041/
+  - https://attack.mitre.org/techniques/T1071/001/
+author: Chris S (avrgsec_)
+date: "2025-11-15"
+tags:
+  - attack.t1041
+  - attack.exfiltration
+  - attack.t1071.001
+  - attack.command_and_control
+  - attack.t1546.004
+  - attack.persistence
+logsource:
+  category: process_creation
+  product: macos
+detection:
+  selection_parent:
+    ParentImage|endswith: 
+      - '/zsh'
+      - '/bash'
+  selection_network_tools:
+    Image|endswith:
+      - '/curl'
+      - '/wget'
+      - '/nc'
+      - '/ncat'
+      - '/python'
+      - '/python3'
+      - '/perl'
+      - '/ruby'
+      - '/openssl'
+  selection_indicators:
+    CommandLine|contains:
+      - 'http://'
+      - 'https://'
+      - '/dev/tcp/'
+      - 'base64'
+      - 'exec'
+      - 'socket'
+  filter_legit:
+    CommandLine|contains:
+      - 'brew.sh'
+      - 'githubusercontent.com'
+      - 'oh-my-zsh'
+      - 'github.com/ohmyzsh'
+      - 'github.com/robbyrussell'
+      - 'update_terminal'
+  condition: selection_parent and selection_network_tools and selection_indicators and not filter_legit
+falsepositives:
+  - Homebrew installation or updates
+  - oh-my-zsh automatic updates
+  - Legitimate shell customization that checks for updates
+  - Development environment initialization (nvm, rbenv, pyenv)
+level: high
